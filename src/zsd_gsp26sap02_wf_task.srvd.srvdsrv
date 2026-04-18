@@ -1,0 +1,14 @@
+@EndUserText.label: 'Service Definition for Workflow Task'
+define service ZSD_GSP26SAP02_WF_TASK {
+  expose ZI_WF_DECISION_UQ as DecisionOptions;
+  expose ZC_GSP26SAP02_MyInbox as WfTasks;
+  expose ZC_GSP26SAP02_USER_SUBST as Substitutions;
+  expose ZCE_GSP26SAP02_SubstProfile as SubstProfiles;
+  expose ZI_GSP26SAP02_WF_TraceLog as TraceLogs;
+  expose ZC_GSP26SAP02_WF_Attachment as Attachments;
+  expose ZC_GSP26SAP02_WF_Comment as Comments;
+  expose ZI_GSP26SAP02_Current_Role as CurrentUserRole;
+  expose ZC_GSP26SAP02_AdminInbox as AdminInbox;
+  expose ZC_GSP26SAP02_TASK_BASE as TaskBase;
+  expose ZI_GSP26SAP02_ActiveWFUsers as ActiveUsers;
+}

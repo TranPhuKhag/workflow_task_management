@@ -1,0 +1,27 @@
+projection;
+strict ( 2 );
+define behavior for ZC_GSP26SAP02_MyInbox alias MyInbox
+{
+  use action executionDecision;
+  use action claim;
+  use action release;
+  use action forward;
+  use action bulkDelegation;
+  use action suspend;
+  use action approve;
+  use action reject;
+  use action reSubmission;
+  use action setPriority;
+  use association _Attachments { create; }
+  use association _Comments { create; }
+}
+define behavior for ZC_GSP26SAP02_WF_Attachment alias Attachments
+{
+  use association _MyInbox { }
+  use delete;
+
+}
+define behavior for ZC_GSP26SAP02_WF_Comment alias Comments
+{
+  use association _MyInbox { }
+}

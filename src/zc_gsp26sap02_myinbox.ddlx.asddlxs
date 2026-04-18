@@ -1,0 +1,112 @@
+@Metadata.layer: #CORE
+@UI.headerInfo: {
+  typeName: 'Work Item',
+  typeNamePlural: 'Work Items',
+  title: { type: #STANDARD, value: 'WorkItemText' },
+  description: { type: #STANDARD, value: 'WorkItemID' }
+}
+annotate entity ZC_GSP26SAP02_MyInbox with
+
+{
+  @UI.facet: [
+   {
+     id: 'General',
+     type: #IDENTIFICATION_REFERENCE,
+     label: 'General Data',
+     position: 10
+   },
+   {
+   id: 'Attachments',
+   type: #LINEITEM_REFERENCE,
+   label: 'Attachments',
+   position: 20,
+   targetElement: '_Attachments'
+   },
+     {
+  id: 'upload',
+  purpose: #STANDARD,
+  type: #FIELDGROUP_REFERENCE,
+  parentId: 'Attachments',
+  label: 'upload Attachment Content',
+  position: 20,
+  targetQualifier: 'upload'
+  }
+  ]
+
+
+
+  @UI:
+  { lineItem: [{ position: 10, importance: #HIGH } ],
+  identification: [ { position: 10 },
+  { type: #FOR_ACTION, dataAction: 'approve', label: 'Approve', invocationGrouping: #CHANGE_SET  },
+  { type: #FOR_ACTION, dataAction: 'reject', label: 'Reject'},
+  { type: #FOR_ACTION, dataAction: 'claim', label: 'Claim' },
+  { type: #FOR_ACTION, dataAction: 'release', label: 'Release' },
+  { type: #FOR_ACTION, dataAction: 'forward', label: 'Forward' },
+  { type: #FOR_ACTION, dataAction: 'suspend', label: 'Suspend' },
+  { type: #FOR_ACTION, dataAction: 'reSubmission', label: 'Re-Submission' },
+  { type: #FOR_ACTION, dataAction: 'setPriority', label: 'Set Priority' }  ] ,
+  textArrangement: #TEXT_ONLY,
+  selectionField: [ { position: 40 } ] }
+
+  @UI.fieldGroup: [{ qualifier: 'GeneralData', position: 10 }]
+  WorkItemID;
+
+  @UI.lineItem:       [{ position: 20, importance: #HIGH }
+
+
+  ]
+  @UI.identification: [{ position: 20 }]
+  @UI.fieldGroup:     [{ qualifier: 'GeneralData', position: 20 }]
+  WorkItemText;
+
+  @UI.lineItem:       [{ position: 30, importance: #MEDIUM }]
+  @UI.identification: [{ position: 30 }]
+  @UI.fieldGroup:     [{ qualifier: 'GeneralData', position: 30 }]
+  @UI.textArrangement: #TEXT_ONLY
+  TechnicalStatus;
+  @UI.hidden: true // (Tùy chọn) Ẩn cột text thừa nếu nó đang hiện riêng lẻ
+  TechnicalStatusText;
+
+  @UI.fieldGroup: [{ qualifier: 'GeneralData', position: 40 }]
+  @UI.lineItem: [{ position: 40, importance: #LOW }]
+  @UI.identification: [{ position: 40 }]
+  @EndUserText.label: 'UserID'
+  AssignedUser;
+
+  @UI.lineItem:       [{ position: 50, importance: #LOW }]
+  @UI.identification: [{ position: 50 }]
+  @UI.fieldGroup:     [{ qualifier: 'GeneralData', position: 50 }]
+  @EndUserText.label: 'User Name'
+  AssignedUserName;
+
+  @UI.lineItem:       [{ position: 60, importance: #LOW, criticality: 'DeadlineCriticality' }]
+  @UI.identification: [{ position: 60, criticality: 'DeadlineCriticality' }]
+  @UI.fieldGroup:     [{ qualifier: 'GeneralData', position: 60 }]
+  @UI.textArrangement: #TEXT_ONLY
+  DeadlineStatus;
+
+  @UI.lineItem:       [{ position: 70, importance: #LOW }]
+  @UI.identification: [{ position: 70 }]
+  @UI.fieldGroup:     [{ qualifier: 'GeneralData', position: 70 }]
+
+  Priority;
+  @UI.lineItem:       [{ position: 80, importance: #LOW }]
+  @UI.identification: [{ position: 80 }]
+  @UI.fieldGroup:     [{ qualifier: 'GeneralData', position: 80 }]
+  @EndUserText.label: 'Days To Deadline'
+  DaysToDeadline;
+
+  @UI.lineItem:       [{ position: 90, importance: #LOW }]
+  @UI.identification: [{ position: 90 }]
+  @UI.fieldGroup:     [{ qualifier: 'GeneralData', position: 90 }]
+  EndDate;
+  @UI.lineItem:       [{ position: 100, importance: #LOW }]
+  @UI.identification: [{ position: 100 }]
+  @UI.fieldGroup:     [{ qualifier: 'GeneralData', position: 100 }]
+  UserSubstitutedBy;
+  
+  
+//   @UI.fieldGroup: [ { qualifier: 'upload', position: 40 } ]
+//  NewFileContent;
+}

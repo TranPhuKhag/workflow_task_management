@@ -1,0 +1,31 @@
+unmanaged implementation in class zbp_i_gsp26sap02_user_subst unique;
+strict ( 2 );
+
+define behavior for ZI_GSP26SAP02_USER_SUBST alias Subst
+//late numbering
+lock master
+authorization master ( instance )
+//etag master <field_name>
+{
+  field ( mandatory : create, readonly : update ) UserSubstitutedBy;
+  field ( readonly : update ) UserSubstitutedFor, BeginDate;
+  field ( readonly ) SubstitutionType, SubstituteFullName, OwnerFullName;
+
+  create;
+  update;
+  delete;
+
+  action ( features : instance ) toggleActive parameter ZD_Subst_ToggleParams result [1] $self;
+
+  mapping for hrus_d2
+  {
+    UserSubstitutedFor = us_name;
+    UserSubstitutedBy = rep_name;
+    BeginDate = begda;
+    EndDate = endda;
+    SubstitutionProfile = reppr;
+    Active = active;
+//    SubstitutionType = zzsubst_type;
+  }
+
+}

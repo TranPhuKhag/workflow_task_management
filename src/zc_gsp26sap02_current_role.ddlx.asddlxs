@@ -1,0 +1,45 @@
+@Metadata.layer: #CORE
+@UI: {
+  headerInfo: {
+    typeName: 'User Role',
+    typeNamePlural: 'User Roles',
+    title: { type: #STANDARD, value: 'RoleName' }
+  }
+}
+annotate view ZC_GSP26SAP02_CURRENT_ROLE with
+{
+  @UI.facet: [
+    {
+      id: 'GeneralInfo',
+      type: #IDENTIFICATION_REFERENCE,
+      label: 'Role Details',
+      position: 10
+    }
+  ]
+
+  @UI: { lineItem:       [ { position: 10, label: 'User Name' } ],
+         identification: [ { position: 10 } ],
+         selectionField: [ { position: 10 } ] }
+  UserName;
+
+  @UI: { lineItem:       [ { position: 20, label: 'Role ID' } ],
+         identification: [ { position: 20 } ] }
+  RoleID;
+
+  @UI: { lineItem:       [ { position: 30, label: 'Role Name' } ],
+         identification: [ { position: 30 } ],
+         selectionField: [ { position: 20 } ] }
+  RoleName;
+
+  @UI: { lineItem:       [ { position: 40, label: 'Role Level' } ],
+         identification: [ { position: 40 } ] }
+  RoleLevel;
+
+  @UI: { lineItem:       [ { position: 50, label: 'Valid From' } ],
+         identification: [ { position: 50 } ] }
+  ValidFrom;
+
+  @UI: { lineItem:       [ { position: 60, label: 'Valid To' } ],
+         identification: [ { position: 60 } ] }
+  ValidTo;
+}

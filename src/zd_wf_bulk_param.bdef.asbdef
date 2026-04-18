@@ -1,0 +1,11 @@
+abstract;
+strict ( 2 );
+with hierarchy;
+define behavior for ZD_WF_BULK_PARAM alias BulkParam
+{
+    association _WorkItems;
+}
+define behavior for ZD_WF_WI_ID alias WorkItems
+{
+     association _BulkParam;
+}

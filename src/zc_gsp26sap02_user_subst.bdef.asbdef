@@ -1,0 +1,12 @@
+projection;
+strict ( 2 );
+
+define behavior for ZC_GSP26SAP02_USER_SUBST alias Subst
+{
+  use create;
+  use update;
+  use delete;
+
+  use action toggleActive;
+
+}

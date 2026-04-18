@@ -1,0 +1,49 @@
+@Metadata.layer: #CORE
+@UI: {
+  headerInfo: {
+    typeName: 'Assigned User',
+    typeNamePlural: 'Assigned Users',
+    title: { type: #STANDARD, value: 'UserName' }
+  }
+}
+annotate view ZC_GSP26SAP02_WF_USER with
+{
+  @UI.facet: [ {
+    id: 'idUser',
+    type: #IDENTIFICATION_REFERENCE,
+    label: 'User Assignment Details',
+    position: 10
+  } ]
+
+  @UI.hidden: true
+  RoleID;
+
+  @EndUserText.label: 'User Name'
+  @UI.lineItem: [ { position: 10, importance: #HIGH } ]
+  @UI.identification: [ { position: 10 } ]
+  UserName;
+
+  @EndUserText.label: 'Valid From'
+  @UI.lineItem: [ { position: 20, importance: #HIGH } ]
+  @UI.identification: [ { position: 20 } ]
+  ValidFrom;
+
+  @EndUserText.label: 'Valid To'
+  @UI.lineItem: [ { position: 30, importance: #MEDIUM } ]
+  @UI.identification: [ { position: 30 } ]
+  ValidTo;
+
+  @EndUserText.label: 'Active Status'
+  @UI.lineItem: [ { position: 40, importance: #HIGH } ]
+  @UI.identification: [ { position: 40 } ]
+  IsActive;
+
+  @UI.hidden: true
+  CreatedBy;
+  @UI.hidden: true
+  CreatedAt;
+  @UI.hidden: true
+  LastChangedBy;
+  @UI.hidden: true
+  LastChangedAt;
+}
