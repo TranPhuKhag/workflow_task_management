@@ -458,7 +458,7 @@ CLASS zcl_wrap_wf_myinbox IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD sap_wapi_decision_complete.
-    CALL FUNCTION 'SAP_WAPI_DECISION_COMPLETE'
+    CALL FUNCTION 'SAP_WAPI_DECISION_COMPLETE' DESTINATION 'NONE'
       EXPORTING
         check_inbox_restriction   = check_inbox_restriction
         decision_key              = decision_key
@@ -493,4 +493,23 @@ CLASS zcl_wrap_wf_myinbox IMPLEMENTATION.
         message_lines           = message_lines
         message_struct          = message_struct.
   ENDMETHOD.
+
+
+  METHOD zif_wrap_wf_myinbox~get_workitem_detail.
+CALL FUNCTION 'SAP_WAPI_GET_WORKITEM_DETAIL'
+  EXPORTING
+    workitem_id       = workitem_id
+    user              = user
+    language          = language
+    translate_wi_text = space
+  IMPORTING
+    workitem_detail   = workitem_detail
+    return_code       = return_code
+    workitem_result   = workitem_result
+  TABLES
+    message_lines     = message_lines
+    message_struct    = message_struct
+  .
+  ENDMETHOD.
+
 ENDCLASS.

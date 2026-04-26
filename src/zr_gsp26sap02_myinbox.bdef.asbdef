@@ -2,10 +2,8 @@ unmanaged implementation in class zbp_r_gsp26sap02_myinbox unique;
 strict ( 2 );
 define behavior for ZR_GSP26SAP02_MyInbox alias MyInbox
 implementation in class zbp_gsp26sap02_myinbox unique
-//late numbering
 lock master
 authorization master ( instance )
-//etag master <field_name>
 {
   field ( readonly ) WorkItemID;
   action( features : instance) executionDecision parameter ZD_WF_DECISION_PARAM result [1] $self;

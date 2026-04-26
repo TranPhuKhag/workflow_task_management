@@ -30,8 +30,6 @@ CLASS lsc_ZR_GSP26SAP02_MYINBOX IMPLEMENTATION.
     ENDIF.
     IF zbp_gsp26sap02_myinbox=>gt_wiids IS NOT INITIAL.
       DATA(lt_wiids) = zbp_gsp26sap02_myinbox=>gt_wiids.
-      SORT lt_wiids.
-      DELETE ADJACENT DUPLICATES FROM lt_wiids.
       LOOP AT lt_wiids INTO DATA(lv_wiid) .
         CALL FUNCTION 'SWW_WI_LOG_FLUSH'
           EXPORTING

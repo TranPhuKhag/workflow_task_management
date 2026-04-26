@@ -116,7 +116,7 @@ INTERFACE zif_wrap_wf_myinbox
       !user           TYPE syuname DEFAULT sy-uname
       !language       TYPE sy-langu DEFAULT sy-langu
     EXPORTING
-      !new_status     type swr_wistat
+      !new_status     TYPE swr_wistat
       !return_code    TYPE sysubrc
     CHANGING
       !message_lines  TYPE tt_message_lines OPTIONAL
@@ -215,5 +215,21 @@ INTERFACE zif_wrap_wf_myinbox
     CHANGING
       !message_lines           TYPE tt_message_lines OPTIONAL
       !message_struct          TYPE tt_message_struct OPTIONAL
+    .
+
+  METHODS get_workitem_detail
+    IMPORTING
+      workitem_id       TYPE sww_wiid
+      user              TYPE syuname DEFAULT sy-uname
+      language          TYPE sylangu DEFAULT sy-langu
+      translate_wi_text TYPE xfeld DEFAULT space
+    EXPORTING
+      workitem_detail   TYPE swr_widtl
+      return_code       TYPE syst_subrc
+      workitem_result   TYPE swr_result
+    CHANGING
+      !message_lines    TYPE tt_message_lines OPTIONAL
+      !message_struct   TYPE tt_message_struct OPTIONAL
+
     .
 ENDINTERFACE.

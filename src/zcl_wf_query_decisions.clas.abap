@@ -48,19 +48,32 @@ CLASS zcl_wf_query_decisions IMPLEMENTATION.
             ENDTRY.
             READ TABLE lt_filter_ranges WITH KEY name = 'WORKITEMID' INTO DATA(ls_wi_filter).
             IF sy-subrc = 0.
-                        lv_workitem_id = ls_wi_filter-range[ 1 ]-low.
+              lv_workitem_id = ls_wi_filter-range[ 1 ]-low.
             ENDIF.
 
             IF lv_workitem_id IS NOT INITIAL.
+              DATA: lv_return_code    TYPE sysubrc,
+                    lt_message_lines  TYPE STANDARD TABLE OF swr_messag,
+                    lt_message_struct TYPE STANDARD TABLE OF swr_mstruc
+                    .
               " Get Work Item ID from the query context
               CALL FUNCTION 'SAP_WAPI_DECISION_READ'
                 EXPORTING
-                  workitem_id  = lv_workitem_id
+                  workitem_id    = lv_workitem_id
+                  language       = sy-langu
+                  user           = sy-uname
+                IMPORTING
+                  return_code    = lv_return_code
+*                 decision_title =
                 TABLES
-                  alternatives = lt_decisions.
-                   IF sy-subrc <> 0.
-      CLEAR lt_decisions.
-    ENDIF.
+                  alternatives   = lt_decisions
+*                 alt_properties =
+                  message_lines  = lt_message_lines
+                  message_struct = lt_message_struct.
+              IF lv_return_code <> 0.
+              CLEAR lt_decisions.
+              ENDIF.
+
               " MAPPING DATA FROM WAPI TO CUSTOM ENTITY
               lt_result = VALUE #( FOR ls_decision IN lt_decisions
                                   (
@@ -70,7 +83,6 @@ CLASS zcl_wf_query_decisions IMPLEMENTATION.
                                     Nature = ls_decision-altnature
                                   )
               ).
-
               " EXECUTION SORT
               IF lt_sort_criteria IS NOT INITIAL.
                 SORT lt_result BY (lt_sort_criteria).
@@ -89,7 +101,8 @@ CLASS zcl_wf_query_decisions IMPLEMENTATION.
               ENDIF.
             ENDIF.
         ENDCASE.
-      CATCH cx_rap_query_provider.
+      CATCH cx_rap_query_provider INTO DATA(lx_exc).
+          "Handle exception
     ENDTRY.
 
   ENDMETHOD.

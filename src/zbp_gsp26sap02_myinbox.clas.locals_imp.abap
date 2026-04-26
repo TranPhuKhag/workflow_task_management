@@ -180,16 +180,17 @@ CLASS lhc_MyInbox IMPLEMENTATION.
 
                     %features-%action-suspend = COND #(
                       WHEN ls_wftask-TechnicalStatus = lc_tech_status-selected
+                      OR ls_wftask-TechnicalStatus = lc_tech_status-started
                       THEN if_abap_behv=>fc-o-enabled
                       ELSE if_abap_behv=>fc-o-disabled
                     )
 
                     %features-%action-forward = COND #(
                       WHEN ls_wftask-TechnicalStatus = lc_tech_status-selected
+                      OR ls_wftask-TechnicalStatus = lc_tech_status-started
                       THEN if_abap_behv=>fc-o-enabled
                       ELSE if_abap_behv=>fc-o-disabled
                     )
-
                     %features-%action-reSubmission = COND #(
                       WHEN ls_wftask-TechnicalStatus = lc_tech_status-waiting
                       THEN if_abap_behv=>fc-o-enabled
@@ -198,6 +199,7 @@ CLASS lhc_MyInbox IMPLEMENTATION.
 
                     %features-%action-setPriority = COND #(
                       WHEN ls_wftask-TechnicalStatus = lc_tech_status-selected
+                      OR ls_wftask-TechnicalStatus = lc_tech_status-started
                       THEN if_abap_behv=>fc-o-enabled
                       ELSE if_abap_behv=>fc-o-disabled
                     )
@@ -216,6 +218,9 @@ CLASS lhc_MyInbox IMPLEMENTATION.
     result = VALUE #( FOR key IN keys (
           %tky = key-%tky
           %action-setPriority = COND #( WHEN  lv_is_admin = abap_true
+                                        THEN if_abap_behv=>auth-allowed
+                                        ELSE if_abap_behv=>auth-unauthorized )
+         %action-reSubmission = COND #( WHEN  lv_is_admin = abap_true
                                         THEN if_abap_behv=>auth-allowed
                                         ELSE if_abap_behv=>auth-unauthorized ) ) ).
 
@@ -268,7 +273,7 @@ CLASS lhc_MyInbox IMPLEMENTATION.
           reported     = reported-myinbox
       ).
       IF lv_failed_added = abap_false.
-        APPEND  <lfs_key>-WorkItemID TO zbp_gsp26sap02_myinbox=>gt_wiids.
+        INSERT <lfs_key>-WorkItemID INTO TABLE zbp_gsp26sap02_myinbox=>gt_wiids.
         APPEND VALUE #( %tky = <lfs_key>-%tky %param = CORRESPONDING #( <lfs_key> ) ) TO result.
       ENDIF.
     ENDLOOP.
@@ -299,9 +304,7 @@ CLASS lhc_MyInbox IMPLEMENTATION.
           do_commit                 = abap_false
           language                  = sy-langu
           user                      = sy-uname
-*         att_header                =
           att_txt                   = lv_att_txt
-*               att_bin
           document_owner            = sy-uname
           comment_semantic          = 'X'
           comment_method            = '01'
@@ -325,82 +328,80 @@ CLASS lhc_MyInbox IMPLEMENTATION.
           reported     = reported-myinbox
       ).
       IF lv_failed_added = abap_false.
-        APPEND <lfs_key>-WorkItemID TO zbp_gsp26sap02_myinbox=>gt_wiids.
+        INSERT <lfs_key>-WorkItemID INTO TABLE zbp_gsp26sap02_myinbox=>gt_wiids.
         APPEND VALUE #( %tky = <lfs_key>-%tky %param = CORRESPONDING #( <lfs_key> ) ) TO result.
       ENDIF.
     ENDLOOP.
   ENDMETHOD.
   METHOD forward.
-    DATA : lv_return_code    TYPE sysubrc,
-           lv_new_status     TYPE swr_wistat,
-           lt_message_struct TYPE TABLE OF swr_mstruc,
-           lt_message_lines  TYPE TABLE OF swr_messag,
-           lt_user_ids       TYPE TABLE OF swragent,
-           lv_att_txt        TYPE string,
-           lv_comment_method TYPE swr_inbox_method
+    DATA : lv_return_code     TYPE sysubrc,
+           lv_new_status      TYPE swr_wistat,
+           lt_message_struct  TYPE TABLE OF swr_mstruc,
+           lt_message_lines   TYPE TABLE OF swr_messag,
+           lt_user_id         TYPE sy-uname,
+           lv_att_txt         TYPE string,
+           lv_comment_method  TYPE swr_inbox_method,
+           ls_workitem_detail TYPE swr_widtl
            .
     DATA: lt_recipients TYPE /iwngw/if_notif_provider=>ty_t_notification_recipient,
           lt_parameters TYPE /iwngw/if_notif_provider=>ty_t_notification_parameter.
-    READ ENTITIES OF ZR_GSP26SAP02_MyInbox IN LOCAL MODE
-      ENTITY MyInbox
-      ALL FIELDS WITH CORRESPONDING #( keys )
-      RESULT DATA(lt_db_data).
     DATA(lo_wapi_wrapper) = zcl_fact_wf_myinbox=>create_instance( ).
 
     LOOP AT keys ASSIGNING FIELD-SYMBOL(<lfs_key>).
-      CLEAR: lv_return_code, lt_message_struct, lt_message_lines, lt_user_ids,lv_att_txt.
-      READ TABLE lt_db_data INTO DATA(ls_db) WITH KEY id COMPONENTS %tky = <lfs_key>-%tky.
+      CLEAR: lv_return_code, lt_message_struct, lt_message_lines,lv_att_txt.
+      lt_user_id = to_upper( <lfs_key>-%param-user_id ).
+      IF lt_user_id EQ sy-uname.
+        APPEND VALUE #(
+msgty = 'E'
+msgid = 'Z_GSP26_MSG'
+msgno = '006' "  Cannot forward to yourself
+msgv1 = <lfs_key>-WorkItemID   ) TO lt_message_struct.
+      ELSE.
 
-      IF ls_db-TaskID EQ lc_task_id-user_decision.
-        lv_comment_method = '01'.
+        lo_wapi_wrapper->get_workitem_detail(
+          EXPORTING
+            workitem_id     = <lfs_key>-WorkItemID
+            user            = sy-uname
+            language        = sy-langu
+          IMPORTING
+            workitem_detail = ls_workitem_detail
+            return_code     = lv_return_code
+          CHANGING
+            message_lines   = lt_message_lines
+            message_struct  = lt_message_struct
+        ).
+        IF lv_return_code EQ 0.
+
+          CLEAR: lv_return_code, lt_message_struct, lt_message_lines.
+
+          IF ls_workitem_detail-wi_rh_task EQ lc_task_id-user_decision.
+            lv_comment_method = '01'.
+          ENDIF.
+          IF <lfs_key>-%param-reason IS NOT INITIAL.
+            lv_att_txt = <lfs_key>-%param-reason.
+          ENDIF.
+
+          lo_wapi_wrapper->forward(
+            EXPORTING
+              workitem_id             = <lfs_key>-WorkItemID
+              user_id                 = <lfs_key>-%param-user_id
+              language                = sy-langu
+              do_commit               = abap_false
+              current_user            = sy-uname
+              check_inbox_restriction = abap_true
+              att_txt                 = lv_att_txt
+              document_owner          = sy-uname
+              comment_semantic        = abap_true
+              comment_method          = lv_comment_method
+            IMPORTING
+              return_code             = lv_return_code
+              new_status              = lv_new_status
+            CHANGING
+              message_lines           = lt_message_lines
+              message_struct          = lt_message_struct
+          ).
+        ENDIF.
       ENDIF.
-      IF <lfs_key>-%param-reason IS NOT INITIAL.
-        lv_att_txt = <lfs_key>-%param-reason.
-      ENDIF.
-      lo_wapi_wrapper->forward(
-        EXPORTING
-          workitem_id             = <lfs_key>-WorkItemID
-          user_id                 = <lfs_key>-%param-user_id
-          language                = sy-langu
-          do_commit               = abap_false
-          current_user            = sy-uname
-          check_inbox_restriction = abap_true
-          att_txt                 = lv_att_txt
-          document_owner          = sy-uname
-          comment_semantic        = abap_true
-          comment_method          = lv_comment_method
-        IMPORTING
-          return_code             = lv_return_code
-          new_status              = lv_new_status
-        CHANGING
-          message_lines           = lt_message_lines
-          message_struct          = lt_message_struct
-          user_ids                = lt_user_ids
-      ).
-
-      CLEAR: lt_recipients, lt_parameters.
-
-      zcl_gsp26_noti_after_action=>build_forward_data(
-        EXPORTING
-          iv_workitem_id = <lfs_key>-WorkItemID
-          iv_sender      = sy-uname
-          iv_receiver    = <lfs_key>-%param-user_id
-        IMPORTING
-          et_recipients  = lt_recipients
-          et_parameters  = lt_parameters
-      ).
-
-      DATA(lv_wiid_str) = |{ <lfs_key>-WorkItemID ALPHA = OUT }|.
-      CONDENSE lv_wiid_str NO-GAPS.
-      DATA(lv_target_action) = |display&/tasks/{ lv_wiid_str }/TwoColumnsMidExpanded|.
-
-      zcl_gsp26_noti_after_action=>push_notification_generic(
-        iv_notif_type = zcl_gsp26_noti_after_action=>gc_notif_forward
-        it_recipients = lt_recipients
-        it_parameters = lt_parameters
-        iv_target_obj = 'ZWorkflow'
-        iv_target_act = lv_target_action
-      ).
       map_messages(
         EXPORTING
           cid          = <lfs_key>-%cid_ref
@@ -413,8 +414,31 @@ CLASS lhc_MyInbox IMPLEMENTATION.
           reported     = reported-myinbox
       ).
       IF lv_failed_added = abap_false.
-        APPEND <lfs_key>-WorkItemID TO zbp_gsp26sap02_myinbox=>gt_wiids.
+        INSERT <lfs_key>-WorkItemID INTO TABLE zbp_gsp26sap02_myinbox=>gt_wiids.
         APPEND VALUE #( %tky = <lfs_key>-%tky %param = CORRESPONDING #( <lfs_key> ) ) TO result.
+        CLEAR: lt_recipients, lt_parameters.
+
+        zcl_gsp26_noti_after_action=>build_forward_data(
+          EXPORTING
+            iv_workitem_id = <lfs_key>-WorkItemID
+            iv_sender      = sy-uname
+            iv_receiver    = <lfs_key>-%param-user_id
+          IMPORTING
+            et_recipients  = lt_recipients
+            et_parameters  = lt_parameters
+        ).
+
+        DATA(lv_wiid_str) = |{ <lfs_key>-WorkItemID ALPHA = OUT }|.
+        CONDENSE lv_wiid_str NO-GAPS.
+        DATA(lv_target_action) = |display&/tasks/{ lv_wiid_str }/TwoColumnsMidExpanded|.
+
+        zcl_gsp26_noti_after_action=>push_notification_generic(
+          iv_notif_type = zcl_gsp26_noti_after_action=>gc_notif_forward
+          it_recipients = lt_recipients
+          it_parameters = lt_parameters
+          iv_target_obj = 'ZWorkflow'
+          iv_target_act = lv_target_action
+        ).
       ENDIF.
     ENDLOOP.
   ENDMETHOD.
@@ -454,7 +478,7 @@ CLASS lhc_MyInbox IMPLEMENTATION.
           reported     = reported-myinbox
       ).
       IF lv_failed_added = abap_false.
-        APPEND <lfs_key>-WorkItemID TO zbp_gsp26sap02_myinbox=>gt_wiids.
+        INSERT <lfs_key>-WorkItemID INTO TABLE zbp_gsp26sap02_myinbox=>gt_wiids.
         APPEND VALUE #( %tky = <lfs_key>-%tky %param = CORRESPONDING #( <lfs_key> ) ) TO result.
       ENDIF.
     ENDLOOP.
@@ -474,8 +498,8 @@ CLASS lhc_MyInbox IMPLEMENTATION.
       IF <lfs_key>-%param-resubmission_date IS INITIAL OR <lfs_key>-%param-resubmission_time IS INITIAL .
         APPEND VALUE #(
             msgty = 'E'
-            msgid = 'ZGSP26SAP02_MYINBOX'
-            msgno = '002' "  Resubmission date is required.
+            msgid = 'Z_GSP26_MSG'
+            msgno = '004' "  Resubmission date is required.
         ) TO lt_message_struct.
       ELSE.
         lo_wapi_wrapper->suspend(
@@ -508,7 +532,7 @@ CLASS lhc_MyInbox IMPLEMENTATION.
           reported     = reported-myinbox
       ).
       IF lv_failed_added = abap_false.
-        APPEND <lfs_key>-WorkItemID TO zbp_gsp26sap02_myinbox=>gt_wiids.
+        INSERT <lfs_key>-WorkItemID INTO TABLE zbp_gsp26sap02_myinbox=>gt_wiids.
         APPEND VALUE #( %tky = <lfs_key>-%tky %param = CORRESPONDING #( <lfs_key> ) ) TO result.
       ENDIF.
     ENDLOOP.
@@ -539,14 +563,12 @@ CLASS lhc_MyInbox IMPLEMENTATION.
           workitem_id               = <lfs_key>-WorkItemID
           att_header                = ls_att_header
           att_txt                   = lv_att_txt
-*         att_bin                   =
           document_owner            = sy-uname
           actual_agent              = sy-uname
           language                  = sy-langu
           set_obsolet               = space
           do_commit                 = abap_false
           do_callback_in_background = abap_false
-*         ifs_xml_container         =
           comment_semantic          = abap_true
           check_inbox_restriction   = abap_true
         IMPORTING
@@ -571,7 +593,7 @@ CLASS lhc_MyInbox IMPLEMENTATION.
           reported     = reported-myinbox
       ).
       IF lv_failed_added = abap_false.
-        APPEND  <lfs_key>-WorkItemID TO zbp_gsp26sap02_myinbox=>gt_wiids.
+        INSERT <lfs_key>-WorkItemID INTO TABLE zbp_gsp26sap02_myinbox=>gt_wiids.
         APPEND VALUE #( %tky = <lfs_key>-%tky %param = CORRESPONDING #( <lfs_key> ) ) TO result.
       ENDIF.
     ENDLOOP.
@@ -602,14 +624,12 @@ CLASS lhc_MyInbox IMPLEMENTATION.
           workitem_id               = <lfs_key>-WorkItemID
           att_header                = ls_att_header
           att_txt                   = lv_att_txt
-*         att_bin                   =
           document_owner            = sy-uname
           actual_agent              = sy-uname
           language                  = sy-langu
           set_obsolet               = space
           do_commit                 = abap_false
           do_callback_in_background = abap_false
-*         ifs_xml_container         =
           comment_semantic          = abap_true
           check_inbox_restriction   = abap_true
         IMPORTING
@@ -634,7 +654,7 @@ CLASS lhc_MyInbox IMPLEMENTATION.
           reported     = reported-myinbox
       ).
       IF lv_failed_added = abap_false.
-        APPEND  <lfs_key>-WorkItemID TO zbp_gsp26sap02_myinbox=>gt_wiids.
+        INSERT <lfs_key>-WorkItemID INTO TABLE zbp_gsp26sap02_myinbox=>gt_wiids.
         APPEND VALUE #( %tky = <lfs_key>-%tky %param = CORRESPONDING #( <lfs_key> ) ) TO result.
       ENDIF.
     ENDLOOP.
@@ -674,7 +694,7 @@ CLASS lhc_MyInbox IMPLEMENTATION.
           reported     = reported-myinbox
       ).
       IF lv_failed_added = abap_false.
-        APPEND  <lfs_key>-WorkItemID TO zbp_gsp26sap02_myinbox=>gt_wiids.
+        INSERT <lfs_key>-WorkItemID INTO TABLE zbp_gsp26sap02_myinbox=>gt_wiids.
         APPEND VALUE #( %tky = <lfs_key>-%tky %param = CORRESPONDING #( <lfs_key> ) ) TO result.
       ENDIF.
     ENDLOOP.
@@ -712,7 +732,7 @@ CLASS lhc_MyInbox IMPLEMENTATION.
           reported     = reported-myinbox
       ).
       IF lv_failed_added = abap_false.
-        APPEND <lfs_key>-WorkItemID TO zbp_gsp26sap02_myinbox=>gt_wiids.
+        INSERT <lfs_key>-WorkItemID INTO TABLE zbp_gsp26sap02_myinbox=>gt_wiids.
         APPEND VALUE #( %tky = <lfs_key>-%tky %param = CORRESPONDING #( <lfs_key> ) ) TO result.
       ENDIF.
     ENDLOOP.
@@ -742,8 +762,8 @@ CLASS lhc_MyInbox IMPLEMENTATION.
       READ TABLE lt_parent_data INTO DATA(ls_db) WITH KEY id COMPONENTS %tky = <lfs_parent>-%tky.
       IF sy-subrc <> 0.
         APPEND VALUE #( msgty = 'E'
-                        msgid = 'ZGSP26SAP02_MYINBOX'
-                        msgno = '001'
+                        msgid = 'Z_GSP26_MSG'
+                        msgno = '003'
                         msgv1 = lv_workitem_id ) TO lt_message_struct.
       ENDIF.
       map_messages(
@@ -817,7 +837,8 @@ CLASS lhc_MyInbox IMPLEMENTATION.
             objectid = ls_att_id-doc_id
             file_extension = lt_att_header-file_extension
              ) TO zbp_gsp26sap02_myinbox=>gt_attachments_create.
-            APPEND lv_workitem_id TO zbp_gsp26sap02_myinbox=>gt_wiids.
+            INSERT lv_workitem_id INTO TABLE zbp_gsp26sap02_myinbox=>gt_wiids.
+
           ENDIF.
         ENDLOOP.
       ENDIF.
@@ -846,8 +867,8 @@ CLASS lhc_MyInbox IMPLEMENTATION.
       READ TABLE lt_parent_data INTO DATA(ls_db) WITH KEY id COMPONENTS %tky = <lfs_parent>-%tky.
       IF sy-subrc <> 0.
         APPEND VALUE #( msgty = 'E'
-                        msgid = 'ZGSP26SAP02_MYINBOX'
-                        msgno = '001'
+                        msgid = 'Z_GSP26_MSG'
+                        msgno = '003'
                         msgv1 = lv_workitem_id ) TO lt_message_struct.
       ENDIF.
       map_messages(
@@ -881,8 +902,8 @@ CLASS lhc_MyInbox IMPLEMENTATION.
           CLEAR: lv_return_code, ls_att_id, ls_doc_size, lt_message_struct, lt_message_lines.
           IF lv_note IS INITIAL.
             APPEND VALUE #( msgty = 'E'
-                            msgid = 'ZGSP26SAP02_MYINBOX'
-                            msgno = '007'
+                            msgid = 'Z_GSP26_MSG'
+                            msgno = '009' " Comment cannot be empty.
                             msgv1 = lv_workitem_id ) TO lt_message_struct.
           ELSE.
             IF ls_db-TaskID EQ lc_task_id-user_decision.
@@ -906,23 +927,23 @@ CLASS lhc_MyInbox IMPLEMENTATION.
                 message_lines           = lt_message_lines
                 message_struct          = lt_message_struct
             ).
-            map_messages_assoc_to_comment(
-              EXPORTING
-                cid          = <lfs_child_create>-%cid
-                message      = lt_message_struct
-              IMPORTING
-                failed_added = lv_failed_added
-              CHANGING
-                failed       = failed-comments
-                reported     = reported-comments
-            ).
-            IF lv_failed_added = abap_false.
-              APPEND lv_workitem_id TO zbp_gsp26sap02_myinbox=>gt_wiids.
-              APPEND VALUE #( %cid = <lfs_child_create>-%cid
-              workitemid = lv_workitem_id
-              objectid = ls_att_id-doc_id
-              ) TO mapped-comments.
-            ENDIF.
+          ENDIF.
+          map_messages_assoc_to_comment(
+            EXPORTING
+              cid          = <lfs_child_create>-%cid
+              message      = lt_message_struct
+            IMPORTING
+              failed_added = lv_failed_added
+            CHANGING
+              failed       = failed-comments
+              reported     = reported-comments
+          ).
+          IF lv_failed_added = abap_false.
+            INSERT lv_workitem_id INTO TABLE zbp_gsp26sap02_myinbox=>gt_wiids.
+            APPEND VALUE #( %cid = <lfs_child_create>-%cid
+            workitemid = lv_workitem_id
+            objectid = ls_att_id-doc_id
+            ) TO mapped-comments.
           ENDIF.
         ENDLOOP.
       ENDIF.
@@ -930,10 +951,12 @@ CLASS lhc_MyInbox IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD bulkDelegation.
-    DATA: lv_return_code    TYPE sysubrc,
-          lv_new_status     TYPE swr_wistat,
-          lt_message_struct TYPE TABLE OF swr_mstruc,
-          lt_message_lines  TYPE TABLE OF swr_messag
+    DATA: lv_return_code     TYPE sysubrc,
+          lv_new_status      TYPE swr_wistat,
+          lt_message_struct  TYPE TABLE OF swr_mstruc,
+          lt_message_lines   TYPE TABLE OF swr_messag,
+          lt_workitem_detail TYPE swr_widtl,
+          lv_user_id         TYPE sy-uname
           .
     DATA: lt_recipients TYPE /iwngw/if_notif_provider=>ty_t_notification_recipient,
           lt_parameters TYPE /iwngw/if_notif_provider=>ty_t_notification_parameter.
@@ -943,24 +966,59 @@ CLASS lhc_MyInbox IMPLEMENTATION.
     LOOP AT keys ASSIGNING FIELD-SYMBOL(<lfs_key>).
       CLEAR: lv_return_code, lt_message_struct, lt_message_lines.
 
-      DATA(lv_user_id) = <lfs_key>-%param-user_id.
       DATA(lt_workitems) = <lfs_key>-%param-_workitems.
       LOOP AT lt_workitems INTO DATA(ls_workitem).
-        lo_wapi_wrapper->forward(
-          EXPORTING
-            workitem_id             = ls_workitem-WorkItemID
-            user_id                 = lv_user_id
-            language                = sy-langu
-            do_commit               = abap_false
-            current_user            = sy-uname
-            check_inbox_restriction = abap_true
-          IMPORTING
-            return_code             = lv_return_code
-            new_status              = lv_new_status
-          CHANGING
-            message_lines           = lt_message_lines
-            message_struct          = lt_message_struct
-        ).
+        lv_user_id = to_upper( <lfs_key>-%param-user_id ).
+        IF lv_user_id NE sy-uname.
+          lo_wapi_wrapper->get_workitem_detail(
+            EXPORTING
+              workitem_id     = ls_workitem-WorkItemID
+              user            = sy-uname
+              language        = sy-langu
+*             translate_wi_text = space
+            IMPORTING
+              workitem_detail = lt_workitem_detail
+              return_code     = lv_return_code
+*             workitem_result = space
+            CHANGING
+              message_lines   = lt_message_lines
+              message_struct  = lt_message_struct
+          ).
+
+          IF lv_return_code = 0.
+            CLEAR: lv_return_code, lt_message_struct, lt_message_lines.
+            IF lt_workitem_detail-wi_stat EQ lc_tech_status-selected.
+
+              lo_wapi_wrapper->forward(
+                EXPORTING
+                  workitem_id             = ls_workitem-WorkItemID
+                  user_id                 = lv_user_id
+                  language                = sy-langu
+                  do_commit               = abap_false
+                  current_user            = sy-uname
+                  check_inbox_restriction = abap_true
+                IMPORTING
+                  return_code             = lv_return_code
+                  new_status              = lv_new_status
+                CHANGING
+                  message_lines           = lt_message_lines
+                  message_struct          = lt_message_struct
+              ).
+            ELSE.
+              APPEND VALUE #(
+                  msgty = 'E'
+                  msgid = 'Z_GSP26_MSG'
+                  msgno = '007' " Work Item &1: Only 'Selected' or 'Started' status allowed for Delegation .
+                  msgv1 = ls_workitem-WorkItemID ) TO lt_message_struct.
+            ENDIF.
+          ENDIF.
+        ELSE.
+          APPEND VALUE #(
+      msgty = 'E'
+      msgid = 'Z_GSP26_MSG'
+      msgno = '008' " Cannot delegate to yourself for Work Item &1.
+      msgv1 = ls_workitem-WorkItemID ) TO lt_message_struct.
+        ENDIF.
         map_messages(
           EXPORTING
             cid          = <lfs_key>-%cid_ref
@@ -974,7 +1032,7 @@ CLASS lhc_MyInbox IMPLEMENTATION.
         ).
         IF lv_failed_added = abap_false.
           APPEND VALUE #( %tky = <lfs_key>-%tky %param = CORRESPONDING #( <lfs_key> ) ) TO result.
-          APPEND ls_workitem-WorkItemID TO zbp_gsp26sap02_myinbox=>gt_wiids.
+          INSERT ls_workitem-WorkItemID INTO TABLE zbp_gsp26sap02_myinbox=>gt_wiids.
           CLEAR: lt_recipients, lt_parameters.
 
           zcl_gsp26_noti_after_action=>build_forward_data(
@@ -1094,4 +1152,5 @@ CLASS lhc_MyInbox IMPLEMENTATION.
                    ELSE if_abap_behv_message=>severity-information ) ) ) TO reported.
     ENDLOOP.
   ENDMETHOD.
+
 ENDCLASS.

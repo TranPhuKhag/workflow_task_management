@@ -48,9 +48,14 @@ CLASS zcl_gsp26_utils IMPLEMENTATION.
             AND begda <= @iv_end_date
              ORDER BY endda DESCENDING, begda DESCENDING
             .
-    IF sy-subrc <> 0 OR lt_pernr[ 1 ]  IS INITIAL.
+*    IF sy-subrc <> 0 OR lt_pernr[ 1 ]  IS INITIAL.
+*      RETURN.
+*    ENDIF.
+    IF sy-subrc <> 0 OR lt_pernr IS INITIAL.
       RETURN.
     ENDIF.
+
+    lv_pernr = lt_pernr[ 1 ].
 
     CALL FUNCTION 'HR_READ_INFOTYPE'
       EXPORTING
@@ -62,19 +67,23 @@ CLASS zcl_gsp26_utils IMPLEMENTATION.
         infty_tab = lt_p2001
       EXCEPTIONS
         OTHERS    = 1.
-IF sy-subrc <> 0.
-  RETURN.
-ENDIF.
+    IF sy-subrc <> 0.
+      RETURN.
+    ENDIF.
     IF lines( lt_p2001 ) > 0.
       rv_avail = abap_false. " not avail
 
-      ev_message = replace( val  = CONV string( TEXT-e01 )
-                            sub  = '&1'
-                            with = CONV string( iv_userid ) ).
+*      ev_message = replace( val  = CONV string( TEXT-e01 )
+*                            sub  = '&1'
+*                            with = CONV string( iv_userid ) ).
+*
+*      ev_message = replace( val  = ev_message
+*                            sub  = '&2'
+*                            with = CONV string( lv_pernr ) ).
 
-      ev_message = replace( val  = ev_message
-                            sub  = '&2'
-                            with = CONV string( lv_pernr ) ).
+      ev_message = replace( val  = replace( val = CONV string( TEXT-e01 ) sub = '&1' with = CONV string( iv_userid ) )
+                                  sub  = '&2'
+                                  with = CONV string( lv_pernr ) ).
     ENDIF.
 
   ENDMETHOD.
@@ -110,13 +119,16 @@ ENDIF.
     IF lv_level_by > lv_level_for.
       rv_valid = abap_false.
 
-      ev_message = replace( val  = CONV string( TEXT-e02 )
-                            sub  = '&1'
-                            with = CONV string( iv_user_by ) ).
-
-      ev_message = replace( val  = ev_message
-                            sub  = '&2'
-                            with = CONV string( iv_user_for ) ).
+*      ev_message = replace( val  = CONV string( TEXT-e02 )
+*                            sub  = '&1'
+*                            with = CONV string( iv_user_by ) ).
+*
+*      ev_message = replace( val  = ev_message
+*                            sub  = '&2'
+*                            with = CONV string( iv_user_for ) ).
+      ev_message = replace( val  = replace( val = CONV string( TEXT-e02 ) sub = '&1' with = CONV string( iv_user_by ) )
+                                  sub  = '&2'
+                                  with = CONV string( iv_user_for ) ).
     ENDIF.
 
   ENDMETHOD.

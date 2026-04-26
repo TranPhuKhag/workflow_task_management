@@ -6,7 +6,10 @@ CLASS lcl_buffer DEFINITION.
       gc_subst_type_p TYPE zuser_subst_ext-zzsubst_type   VALUE 'P',
       gc_subst_type_u TYPE zuser_subst_ext-zzsubst_type   VALUE 'U',
       gc_notif_obj    TYPE string                         VALUE 'ZWorkflow',
-      gc_notif_act    TYPE string                         VALUE 'display&/substitution'.
+      gc_notif_act    TYPE string                         VALUE 'display&/substitution',
+      gc_msg_lwr      TYPE symsgno                        VALUE '010',
+      gc_msg_leave    TYPE symsgno                        VALUE '011',
+      gc_msg_name     TYPE symsgid                        VALUE 'Z_GSP26_MSG'.
 
     TYPES: BEGIN OF ty_subst_buffer,
              us_name      TYPE hrus_d2-us_name,
@@ -216,9 +219,12 @@ CLASS lhc_Subst IMPLEMENTATION.
         APPEND VALUE #(
           %cid = ls_entity-%cid
           UserSubstitutedFor = ls_owner-objid
-          %msg = new_message_with_text(
+          %msg = new_message(
+                   id       = lcl_buffer=>gc_msg_name
+                   number   = lcl_buffer=>gc_msg_lwr
                    severity = if_abap_behv_message=>severity-error
-                   text     = lv_role_msg
+                   v1       = ls_subst-objid
+                   v2       = ls_owner-objid
                  )
           %element-UserSubstitutedBy = if_abap_behv=>mk-on
         ) TO reported-subst.
@@ -258,9 +264,13 @@ CLASS lhc_Subst IMPLEMENTATION.
         APPEND VALUE #(
             %cid = ls_entity-%cid
             UserSubstitutedFor = ls_owner-objid
-            %msg = new_message_with_text(
-                     severity = if_abap_behv_message=>severity-error
-                     text     = lv_avail_msg )
+            %msg = new_message(
+                   id       = lcl_buffer=>gc_msg_name
+                   number   = lcl_buffer=>gc_msg_leave
+                   severity = if_abap_behv_message=>severity-error
+                   v1       = ls_subst-objid
+                   v2       = ls_owner-objid
+                 )
         ) TO reported-subst.
 
         CONTINUE.

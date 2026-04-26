@@ -3,18 +3,18 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <DD04V>
-    <ROLLNAME>ZGSP26_MIMETYPE</ROLLNAME>
+    <ROLLNAME>ZDE_FILEEXT</ROLLNAME>
     <DDLANGUAGE>E</DDLANGUAGE>
-    <DOMNAME>CHAR128</DOMNAME>
+    <DOMNAME>CHAR64</DOMNAME>
     <HEADLEN>55</HEADLEN>
     <SCRLEN1>10</SCRLEN1>
     <SCRLEN2>20</SCRLEN2>
     <SCRLEN3>40</SCRLEN3>
-    <DDTEXT>MIME Content Type</DDTEXT>
-    <REPTEXT>MIME typ</REPTEXT>
-    <SCRTEXT_S>MIME typ</SCRTEXT_S>
-    <SCRTEXT_M>MIME typ</SCRTEXT_M>
-    <SCRTEXT_L>MIME type of a Web object</SCRTEXT_L>
+    <DDTEXT>File extension for PC application</DDTEXT>
+    <REPTEXT>File extension</REPTEXT>
+    <SCRTEXT_S>File extn.</SCRTEXT_S>
+    <SCRTEXT_M>File extension</SCRTEXT_M>
+    <SCRTEXT_L>File extension</SCRTEXT_L>
     <DTELMASTER>E</DTELMASTER>
     <REFKIND>D</REFKIND>
    </DD04V>

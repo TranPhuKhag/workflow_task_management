@@ -14,7 +14,7 @@ define root view entity ZR_GSP26SAP02_MyInbox
                                                                and Subst.EndDate            >= $session.system_date
                                                                and Subst.Active             = 'X'
   // Khang 21/03/26
-    left outer join I_BusinessUser           as SubstUserInfo  on SubstUserInfo.UserID = Subst.UserSubstitutedBy
+    left outer join I_BusinessUser           as SubstUserInfo  on SubstUserInfo.UserID = Subst.UserSubstitutedFor
   // Phi 5/2/26
     left outer join ZI_GSP26SAP02_WF_CONFIG  as WfConfig       on WfConfig.WorkflowType = Task.BusinessObjectType
   // Khang 26/02/26
@@ -53,8 +53,8 @@ define root view entity ZR_GSP26SAP02_MyInbox
                        'FAIL' )                                           as CurrentTime,
       max(UserAssignment.user_id)                                         as AssignedUser,
       max(UserInfo.PersonFullName)                                        as AssignedUserName,
-      max(Subst.UserSubstitutedBy)                                        as UserSubstitutedBy,
-      max(SubstUserInfo.PersonFullName)                                   as UserSubstitutedByName,
+      max(Subst.UserSubstitutedFor)                                        as UserSubstitutedFor,
+      max(SubstUserInfo.PersonFullName)                                   as UserSubstitutedForName,
       case Task.TechnicalStatus
                when 'READY'     then 'Ready'
                when 'SELECTED'  then 'Reserved'

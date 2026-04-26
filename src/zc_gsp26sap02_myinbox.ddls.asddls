@@ -3,6 +3,7 @@
 @Metadata.allowExtensions: true
 @VDM.viewType: #CONSUMPTION
 define root view entity ZC_GSP26SAP02_MyInbox
+provider contract transactional_query
   as projection on ZR_GSP26SAP02_MyInbox
 {
   key WorkItemID,
@@ -39,8 +40,8 @@ define root view entity ZC_GSP26SAP02_MyInbox
       SemanticAction,
       AssignedUser,
       AssignedUserName,
-      UserSubstitutedByName,
-      UserSubstitutedBy, // Flag to Subtitubed By User
+      UserSubstitutedForName,
+      UserSubstitutedFor, // Flag to Subtitubed By User
       // Khang 03/03/26
       IsOverdue,
       IsDueOn,
