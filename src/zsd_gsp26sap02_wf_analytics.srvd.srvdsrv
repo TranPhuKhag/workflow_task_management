@@ -1,0 +1,4 @@
+@EndUserText.label: 'Service Definition - WF Analytics'
+define service ZSD_GSP26SAP02_WF_Analytics {
+  expose ZC_GSP26SAP02_WF_TAG as TopAging;
+}

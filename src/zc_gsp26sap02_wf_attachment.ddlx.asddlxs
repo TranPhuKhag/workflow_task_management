@@ -1,0 +1,67 @@
+@Metadata.layer: #CORE
+@UI.headerInfo: {
+  typeName: 'Attachment',
+  typeNamePlural: 'Attachments',
+  title: { type: #STANDARD, value: 'DocumentTitle' }
+}
+annotate entity ZC_GSP26SAP02_WF_Attachment with
+{
+  @UI.facet: [
+  {
+  id: 'AttachmentData',
+//  type: #COLLECTION,
+  label: 'Attachment Info',
+  position: 10 }
+  ,
+  {
+  id: 'upload',
+  purpose: #STANDARD,
+  type: #FIELDGROUP_REFERENCE,
+//  parentId: 'AttachmentData',
+  label: 'upload Attachment Content',
+  position: 20,
+  targetQualifier: 'upload'
+  }
+   ]
+  @UI.lineItem: [ { position: 10 } ]
+  @UI.identification: [ { position: 10 }
+  ]
+  DocumentTitle;
+
+  @UI.lineItem: [ { position: 20 } ]
+  @UI.fieldGroup: [ { qualifier: 'AttachmentData', position: 20 } ]
+  
+  FileExtension;
+
+  @UI.lineItem: [ { position: 30, label: 'Mime Type' } ]
+  @UI.identification: [ { qualifier: 'AttachmentData', position: 30 } ]
+  MimeType;
+
+  /* Cấu hình hiển thị nút Upload cho trường NewFileContent */
+  //  @UI.fieldGroup: [ { qualifier: 'upload', position: 40 } ]
+  //  NewFileContent;
+
+
+ 
+
+  @UI.lineItem: [ { position: 40, label: 'File Nội Dung' } ]
+  @UI.identification: [ { position: 40 } ]
+  @UI.fieldGroup: [ { qualifier: 'upload', position: 40 } ]
+  @EndUserText.label: 'Chọn tài liệu'
+//  Content;
+NewFileContent;
+   @UI.lineItem: [ { position: 50, label: 'File Nội Dung tải xuống ' } ]
+    @UI.identification: [ { position: 50 } ]
+      @EndUserText.label: 'Nội Dung tải xuống'
+    Content;
+  //  @UI.lineItem: [ { position: 50, label: 'File Content' } ]
+  //  @UI.identification: [ { position: 50 } ]
+  //  @UI.fieldGroup: [ { qualifier: 'upload', position: 50 } ]
+  //  @EndUserText.label: 'Chọn tài liệu Content '
+  //  Content;
+  @UI.hidden: true
+  WorkItemID;
+  @UI.hidden: true
+  ObjectID;
+
+}

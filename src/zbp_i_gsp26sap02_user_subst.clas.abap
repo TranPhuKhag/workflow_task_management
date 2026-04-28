@@ -1,0 +1,5 @@
+CLASS zbp_i_gsp26sap02_user_subst DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zi_gsp26sap02_user_subst.
+ENDCLASS.
+
+CLASS zbp_i_gsp26sap02_user_subst IMPLEMENTATION.
+ENDCLASS.

@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_SRVB" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <SRVB>
+    <METADATA>
+     <NAME>ZUI_GSP26SAP02_WF_TASK_O4</NAME>
+     <TYPE>SRVB/SVB</TYPE>
+     <DESCRIPTION>Service Binding for Workflow Task – OData V4 (UI)</DESCRIPTION>
+    </METADATA>
+    <CONTENT>
+     <BIND_TYPE_IMPL>
+      <NAME>ZUI_GSP26SAP02_WF_TASK_O4</NAME>
+     </BIND_TYPE_IMPL>
+     <BIND_TYPE>ODATA</BIND_TYPE>
+     <BIND_TYPE_VERSION>V4</BIND_TYPE_VERSION>
+     <SERVICES>
+      <item>
+       <SERVICE_NAME>ZC_GSP26SAP02_WF_TAG</SERVICE_NAME>
+       <SERVICE_CONTENT>
+        <item>
+         <SERVICE_VERSION>0001</SERVICE_VERSION>
+         <RELEASE_STATE>NOT_RELEASED</RELEASE_STATE>
+         <SRVD_REF>
+          <URI>/sap/bc/adt/ddic/srvd/sources/zsd_gsp26sap02_wf_analytics</URI>
+          <TYPE>SRVD/SRV</TYPE>
+          <NAME>ZSD_GSP26SAP02_WF_ANALYTICS</NAME>
+         </SRVD_REF>
+         <BIND_TYPE_DATA>
+          <CONTENT>
+           <ENCODING>base64</ENCODING>
+          </CONTENT>
+         </BIND_TYPE_DATA>
+        </item>
+       </SERVICE_CONTENT>
+      </item>
+      <item>
+       <SERVICE_NAME>ZSD_GSP26SAP02_WF_TASK</SERVICE_NAME>
+       <SERVICE_CONTENT>
+        <item>
+         <SERVICE_VERSION>0001</SERVICE_VERSION>
+         <RELEASE_STATE>NOT_RELEASED</RELEASE_STATE>
+         <SRVD_REF>
+          <URI>/sap/bc/adt/ddic/srvd/sources/zsd_gsp26sap02_wf_task</URI>
+          <TYPE>SRVD/SRV</TYPE>
+          <NAME>ZSD_GSP26SAP02_WF_TASK</NAME>
+         </SRVD_REF>
+         <BIND_TYPE_DATA>
+          <CONTENT>
+           <ENCODING>base64</ENCODING>
+          </CONTENT>
+         </BIND_TYPE_DATA>
+        </item>
+       </SERVICE_CONTENT>
+      </item>
+     </SERVICES>
+    </CONTENT>
+    <PUBLISHED>true</PUBLISHED>
+    <BINDING_CREATED>true</BINDING_CREATED>
+   </SRVB>
+  </asx:values>
+ </asx:abap>
+</abapGit>

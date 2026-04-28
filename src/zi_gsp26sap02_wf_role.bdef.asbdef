@@ -1,0 +1,66 @@
+managed implementation in class zbp_i_gsp26sap02_wf_role unique;
+strict ( 2 );
+with draft;
+
+define behavior for ZI_GSP26SAP02_WF_ROLE alias Role
+persistent table zgsp26_wf_role
+draft table zgsp26_d_wfrole
+lock master
+total etag LastChangedAt
+authorization master ( global )
+etag master LastChangedAt
+{
+  create;
+  update;
+  delete;
+
+  field ( readonly ) CreatedAt, CreatedBy, LastChangedAt, LastChangedBy;
+  field ( mandatory ) RoleID;
+
+  draft action Edit;
+  draft action Activate;
+  draft action Discard;
+  draft action Resume;
+  draft determine action Prepare;
+
+  association _UserMapping { create; with draft; }
+
+  mapping for zgsp26_wf_role
+  {
+    RoleID = role_id;
+    RoleName = role_name;
+    RoleLevel = role_level;
+    CreatedBy = created_by;
+    CreatedAt = created_at;
+    LastChangedBy = last_changed_by;
+    LastChangedAt = last_changed_at;
+  }
+}
+
+define behavior for ZI_GSP26SAP02_WF_USER alias UserMap
+persistent table zgsp26_wf_user_r
+draft table zgsp26_d_wfuser
+lock dependent by _Role
+authorization dependent by _Role
+etag master LastChangedAt
+{
+  update;
+  delete;
+  field ( readonly ) RoleID, CreatedAt, CreatedBy, LastChangedAt, LastChangedBy;
+  field ( mandatory ) UserName, ValidFrom;
+
+  association _Role { with draft; }
+
+  mapping for zgsp26_wf_user_r
+  {
+    UserName = uname;
+    RoleID = role_id;
+    ValidFrom = valid_from;
+    ValidTo = valid_to;
+    IsActive = is_active;
+    CreatedBy = created_by;
+    CreatedAt = created_at;
+    LastChangedBy = last_changed_by;
+    LastChangedAt = last_changed_at;
+  }
+}

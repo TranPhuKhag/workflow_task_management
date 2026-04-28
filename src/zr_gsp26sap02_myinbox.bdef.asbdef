@@ -1,0 +1,39 @@
+unmanaged implementation in class zbp_r_gsp26sap02_myinbox unique;
+strict ( 2 );
+define behavior for ZR_GSP26SAP02_MyInbox alias MyInbox
+implementation in class zbp_gsp26sap02_myinbox unique
+lock master
+authorization master ( instance )
+{
+  field ( readonly ) WorkItemID;
+  action( features : instance) executionDecision parameter ZD_WF_DECISION_PARAM result [1] $self;
+  action ( features : instance ) approve parameter ZD_WF_APPROVE_REJECT_PARAM result [0..1]  $self;
+  action ( features : instance ) reject parameter ZD_WF_APPROVE_REJECT_PARAM result [0..1] $self;
+  action ( features : instance ) claim result [1] $self;
+  action ( features : instance ) release result [1] $self;
+  action ( features : instance ) forward parameter ZD_WF_FORWARD_PARAM result [1] $self;
+  action ( features : instance ) reSubmission result [1] $self;
+  action ( features : instance ) bulkDelegation deep parameter ZD_WF_BULK_PARAM result [1..*] $self;
+  action (features : instance ) setPriority parameter ZD_WF_PRIORITY_PARAM result [1] $self;
+  action ( features : instance ) suspend parameter ZD_WF_SUSPEND_PARAM result [1] $self;
+
+  association _Attachments { create; }
+  association _Comments { create; }
+}
+define behavior for ZI_GSP26SAP02_WF_Attachment alias Attachments
+implementation in class zbp_gsp26sap02_attachment unique
+lock dependent by _MyInbox
+authorization dependent by _MyInbox
+{
+  delete ( features : instance );
+  field ( readonly ) WorkItemID;
+  association _MyInbox { }
+}
+define behavior for ZI_GSP26SAP02_WF_Comment alias Comments
+implementation in class zbp_gsp26sap02_comment unique
+lock dependent by _MyInbox
+authorization dependent by _MyInbox
+{
+  field ( readonly ) WorkItemID;
+  association _MyInbox { }
+}

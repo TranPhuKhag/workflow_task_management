@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>Z_GSP26_MSG</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+    <STEXT>Message class for Group SAP 02</STEXT>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_GSP26_MSG</ARBGB>
+     <MSGNR>000</MSGNR>
+     <TEXT>Assigned {SUBST_TYPE} substitute for {USER_FOR} ({BEGDA} - {ENDDA})</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_GSP26_MSG</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>Entity &amp;1 is not known.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_GSP26_MSG</ARBGB>
+     <MSGNR>002</MSGNR>
+     <TEXT>Virtual element &amp;1 is not known.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_GSP26_MSG</ARBGB>
+     <MSGNR>003</MSGNR>
+     <TEXT>Work item &amp;1 not found or already deleted.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_GSP26_MSG</ARBGB>
+     <MSGNR>004</MSGNR>
+     <TEXT>Resubmission date/time  is required</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_GSP26_MSG</ARBGB>
+     <MSGNR>005</MSGNR>
+     <TEXT>Resubmission date/time cannot be in the past</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_GSP26_MSG</ARBGB>
+     <MSGNR>006</MSGNR>
+     <TEXT>Cannot forward to yourself for WorkItem &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_GSP26_MSG</ARBGB>
+     <MSGNR>007</MSGNR>
+     <TEXT>Work Item &amp;1: Only &apos;Selected&apos; or &apos;Started&apos; status allowed for Delegation</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_GSP26_MSG</ARBGB>
+     <MSGNR>008</MSGNR>
+     <TEXT>Cannot delegate to yourself for Work Item &amp;1.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_GSP26_MSG</ARBGB>
+     <MSGNR>009</MSGNR>
+     <TEXT>Comment cannot be empty</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_GSP26_MSG</ARBGB>
+     <MSGNR>010</MSGNR>
+     <TEXT>Substitute user &amp;1 has a lower role level than &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_GSP26_MSG</ARBGB>
+     <MSGNR>011</MSGNR>
+     <TEXT>User &amp;1 is currently on leave (Pernr: &amp;2)</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>

@@ -1,0 +1,61 @@
+@Metadata.layer: #CORE
+@UI: {
+  headerInfo: {
+    typeName: 'Role', 
+    typeNamePlural: 'Roles',
+    title: { type: #STANDARD, value: 'RoleName' },
+    description: { type: #STANDARD, value: 'RoleID' }
+  }
+}
+annotate view ZC_GSP26SAP02_WF_ROLE with
+{
+  @UI.facet: [ {
+    id: 'idIdentification', 
+    type: #IDENTIFICATION_REFERENCE, 
+    label: 'Role Information',
+    position: 10 
+  } 
+  , {
+      id: 'idUserMapping',
+      type: #LINEITEM_REFERENCE,
+      label: 'Assigned Users',
+      position: 20,
+      targetElement: '_UserMapping'
+    }
+  ]
+  
+  @EndUserText.label: 'Role ID'
+  @UI.lineItem: [ { position: 10 , importance: #HIGH } ]
+  @UI.identification: [ { position: 10 } ]
+  RoleID;
+  
+  @EndUserText.label: 'Role Name'
+  @UI.lineItem: [ { position: 20 , importance: #HIGH } ]
+  @UI.identification: [ { position: 20 } ]
+  RoleName;
+  
+  @EndUserText.label: 'Role Level'
+  @UI.lineItem: [ { position: 30 , importance: #MEDIUM } ]
+  @UI.identification: [ { position: 30 } ]
+  RoleLevel;
+  
+  @EndUserText.label: 'Created By'
+  @UI.lineItem: [ { position: 40 , importance: #LOW } ]
+  @UI.identification: [ { position: 40 } ]
+  CreatedBy;
+  
+  @EndUserText.label: 'Created On'
+  @UI.lineItem: [ { position: 50 , importance: #LOW } ]
+  @UI.identification: [ { position: 50 } ]
+  CreatedAt;
+  
+  @EndUserText.label: 'Last Changed By'
+  @UI.lineItem: [ { position: 60 , importance: #LOW } ]
+  @UI.identification: [ { position: 60 } ]
+  LastChangedBy;
+  
+  @EndUserText.label: 'Last Changed On'
+  @UI.lineItem: [ { position: 70 , importance: #LOW } ]
+  @UI.identification: [ { position: 70 } ]
+  LastChangedAt;
+}

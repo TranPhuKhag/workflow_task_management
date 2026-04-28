@@ -1,0 +1,5 @@
+@EndUserText.label: 'Service definition forZC_GSP26SAP02_WF_ROLE'
+define service ZSD_GSP26SAP02_WF_ROLE {
+  expose ZC_GSP26SAP02_WF_ROLE as Role;
+  expose ZC_GSP26SAP02_WF_USER as UserMapping;
+}
